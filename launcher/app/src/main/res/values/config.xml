@@ -266,7 +266,8 @@
          Gregorian date. -->
     <bool name="shamsi_date">false</bool>
     <!-- Lunisolar (Vietnamese / Chinese / Korean) date under the date; on a Hebrew (iw/he) locale
-         it shows the Jewish calendar date instead, e.g. "ל׳ בחשוון תשפ״ז".
+         it shows the Jewish calendar date instead, e.g. "ל׳ בחשוון תשפ״ז", with candle lighting
+         (Friday) and havdalah (Saturday) times when latitude/longitude below are set.
          config.json lunar_date, lunar_utc_offset (7, 8 or 9, default by locale). -->
     <bool name="lunar_date">false</bool>
     <!-- The date (with the Shamsi and lunar lines) on its own line under the clock instead of beside it, for a top bar
@@ -486,8 +487,8 @@
     <!-- Where the TV is, in decimal degrees, so the sky's sunrise and sunset glows follow the real sun
          (computed on the TV, no network). Empty: a fixed temperate day, sunset glow around 19:00.
          Vilnius: 54.69 and 25.28. -->
-    <string name="latitude" translatable="false"></string>
-    <string name="longitude" translatable="false"></string>
+    <string name="latitude" translatable="false">32.08</string>
+    <string name="longitude" translatable="false">34.78</string>
 
     <!-- Cinematic top shelf: the focused dock app's artwork, softened, fills the top of the screen in its
          colour; the shelf gets a larger name, a "Last opened" line (from the apps Home opened) and dock position
