@@ -17,9 +17,11 @@ import java.util.Date;
  */
 final class Hebrew {
 
+    // ICU HebrewCalendar months are 0-based and Tishri-first: TISHRI=0 … ELUL=12,
+    // with ADAR_1=5 (the only Adar in a plain year, Adar I in a leap year) and ADAR=6 (Adar II).
     private static final String[] MONTHS = {
-            "", "ניסן", "אייר", "סיוון", "תמוז", "אב", "אלול", "תשרי",
-            "חשוון", "כסלו", "טבת", "שבט", "אדר", "אדר ב׳"
+            "תשרי", "חשוון", "כסלו", "טבת", "שבט", "אדר", "אדר ב׳",
+            "ניסן", "אייר", "סיוון", "תמוז", "אב", "אלול"
     };
     private static final int[] VALUES = {
             400, 300, 200, 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -42,9 +44,10 @@ final class Hebrew {
         int y = c.get(HebrewCalendar.YEAR);
         int m = c.get(HebrewCalendar.MONTH);
         int d = c.get(HebrewCalendar.DAY_OF_MONTH);
-        // Month 12 is the only Adar in a plain year but Adar I in a leap year (then 13 is Adar II).
+        // Month 5 is the only Adar in a plain year but Adar I in a leap year (then 6 is Adar II,
+        // and the year's month count reads as max index 12 rather than 11).
         String month = MONTHS[m];
-        if (m == 12 && c.getActualMaximum(HebrewCalendar.MONTH) == 13) month = "אדר א׳";
+        if (m == 5 && c.getActualMaximum(HebrewCalendar.MONTH) == 12) month = "אדר א׳";
         return res.getString(R.string.hebrew_date_format, numeral(d), month, numeral(y % 1000));
     }
 
