@@ -117,6 +117,11 @@
     </plurals>
     <string name="greeting_with_name">%1$s, %2$s</string>
     <string name="rows_below_dock_label">שורות מתחת לשורת המועדפים</string>
+    <string name="theme_label">ערכת נושא</string>
+    <string name="theme_state">ערכת נושא: %1$s</string>
+    <string name="theme_default">ברירת מחדל</string>
+    <string name="theme_custom">מותאם אישית</string>
+    <string name="theme_applied">ערכת הנושא הוחלה</string>
     <string name="wallpaper_label">טפט</string>
     <string name="wallpaper_state">טפט: %1$s</string>
     <string name="wallpaper_none">ללא</string>

@@ -34,6 +34,7 @@ public final class LauncherSettingsActivity extends Activity {
     private final TextView[] dockChoices = new TextView[DOCK_OPACITIES.length];
     private static final String[] CLOCK_FORMATS = {"system", "12", "24"};
     private final TextView[] clockChoices = new TextView[CLOCK_FORMATS.length];
+    private TextView themeChoice;
     private TextView wallpaperChoice;
     private TextView animationsChoice;
     private TextView advancedChoice;
@@ -123,6 +124,8 @@ public final class LauncherSettingsActivity extends Activity {
             reverseRow(dockChoices);
             reverseRow(clockChoices);
         }
+        themeChoice = findViewById(R.id.themeChoice);
+        themeChoice.setOnClickListener(v -> showThemePicker());
         wallpaperChoice = findViewById(R.id.wallpaperChoice);
         wallpaperChoice.setOnClickListener(v -> showWallpaperPicker());
         animationsChoice = findViewById(R.id.animationsChoice);
@@ -181,6 +184,31 @@ public final class LauncherSettingsActivity extends Activity {
         LinearLayout row = (LinearLayout) views[0].getParent();
         row.removeAllViews();
         for (int i = views.length - 1; i >= 0; i--) row.addView(views[i]);
+    }
+
+    /** The themes installed under files/themes/, then Default (the built-in look, like theme.sh --reset). */
+    private void showThemePicker() {
+        File dir = Config.dir(this);
+        List<File> themes = ThemeLibrary.installed(dir);
+        String[] labels = new String[themes.size() + 1];
+        for (int i = 0; i < themes.size(); i++) labels[i] = themes.get(i).getName();
+        labels[themes.size()] = getString(R.string.theme_default);
+        String current = ThemeLibrary.current(dir);
+        int checked = ThemeLibrary.DEFAULT.equals(current) ? themes.size()
+                : current == null ? -1 : indexOf(themes, current);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.theme_label)
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    dialog.dismiss();
+                    boolean ok = ThemeLibrary.apply(dir,
+                            which == themes.size() ? null : themes.get(which));
+                    if (!ok) return;
+                    changed();
+                    Toast.makeText(this, R.string.theme_applied, Toast.LENGTH_SHORT).show();
+                    refresh();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void showWallpaperPicker() {
@@ -305,6 +333,11 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < clockChoices.length; i++) {
             clockChoices[i].setSelected(CLOCK_FORMATS[i].equals(clockFormat));
         }
+        String themeCurrent = ThemeLibrary.current(Config.dir(this));
+        themeChoice.setText(getString(R.string.theme_state,
+                themeCurrent == null ? getString(R.string.theme_custom)
+                        : ThemeLibrary.DEFAULT.equals(themeCurrent) ? getString(R.string.theme_default)
+                        : themeCurrent));
         animationsChoice.setText(getString(R.string.animations_state,
                 getString(animations ? R.string.on : R.string.off)));
         advancedChoice.setText(getString(R.string.advanced_effects_state,

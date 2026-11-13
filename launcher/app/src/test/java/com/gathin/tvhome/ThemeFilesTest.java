@@ -29,6 +29,27 @@ public class ThemeFilesTest {
         assertFalse(ThemeFiles.collectionImage("captions.txt"));
     }
 
+    @Test public void libraryThemesAreAllowed() {
+        assertEquals("themes/aurora/config.json", ThemeFiles.path(Arrays.asList("themes", "aurora", "config.json")));
+        assertEquals("themes/aurora/wallpaper.jpg", ThemeFiles.path(Arrays.asList("themes", "aurora", "wallpaper.jpg")));
+        assertEquals("themes/red-rain/wallpapers/dusk.jpg",
+                ThemeFiles.path(Arrays.asList("themes", "red-rain", "wallpapers", "dusk.jpg")));
+        assertEquals("themes/storm/wallpapers/captions.txt",
+                ThemeFiles.path(Arrays.asList("themes", "storm", "wallpapers", "captions.txt")));
+    }
+
+    @Test public void libraryNamesAreChecked() {
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "..", "config.json")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", ".hidden", "config.json")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "a b", "config.json")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora", "run.sh")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora", "screenshot.jpg")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora", "wallpapers", "run.sh")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora", "wallpapers", "..", "x.jpg")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora")));
+        assertNull(ThemeFiles.path(Arrays.asList("themes", "aurora", "deep", "config.json", "x")));
+    }
+
     @Test public void anythingElseIsRefused() {
         assertNull(ThemeFiles.path(null));
         assertNull(ThemeFiles.path(Collections.emptyList()));
