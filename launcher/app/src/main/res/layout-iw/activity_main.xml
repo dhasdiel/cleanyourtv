@@ -189,11 +189,14 @@
                 android:orientation="horizontal"
                 android:gravity="right|bottom">
 
+                <!-- gravity=right: the lunar line can be wider than the Gregorian one, and the
+                     narrower line still has to hug the right edge with it. -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_marginBottom="9dp"
+                    android:gravity="right"
                     android:orientation="vertical">
 
                     <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->
@@ -226,11 +229,13 @@
                         android:letterSpacing="0.14"
                         android:textAllCaps="true" />
 
-                        <!-- Lunar date ("Lunar 13/9 · Year of the Horse"), shown when lunar_date is on. -->
+                        <!-- Lunar date ("Lunar 13/9 · Year of the Horse"; on a Hebrew locale the Hebrew date with
+                             the Friday/Saturday shabbat time), shown when lunar_date is on. wrap_content so the
+                             column grows for the longer shabbat line instead of ellipsizing it. -->
                         <TextView
                             android:id="@+id/lunarDate"
                             android:gravity="right"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:singleLine="true"
