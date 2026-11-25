@@ -17,8 +17,8 @@ import java.util.Date;
  */
 final class Hebrew {
 
-    // ICU HebrewCalendar months are 0-based and Tishri-first: TISHRI=0 … ELUL=12,
-    // with ADAR_1=5 (the only Adar in a plain year, Adar I in a leap year) and ADAR=6 (Adar II).
+    // ICU HebrewCalendar months are 0-based and Tishri-first: TISHRI=0 … ELUL=12.
+    // ADAR_1=5 exists only in a leap year; ADAR=6 is the plain year's Adar and a leap year's Adar II.
     private static final String[] MONTHS = {
             "תשרי", "חשוון", "כסלו", "טבת", "שבט", "אדר", "אדר ב׳",
             "ניסן", "אייר", "סיוון", "תמוז", "אב", "אלול"
@@ -37,18 +37,27 @@ final class Hebrew {
         return "iw".equals(lang) || "he".equals(lang);
     }
 
-    /** Today's Hebrew date, formatted with the locale's strings. */
-    static String today(Resources res) {
+    /** Today's Hebrew date. Fixed Hebrew words, as this line is only shown on a Hebrew locale. */
+    static String today() {
         HebrewCalendar c = new HebrewCalendar();
         c.setTime(new Date());
         int y = c.get(HebrewCalendar.YEAR);
         int m = c.get(HebrewCalendar.MONTH);
         int d = c.get(HebrewCalendar.DAY_OF_MONTH);
-        // Month 5 is the only Adar in a plain year but Adar I in a leap year (then 6 is Adar II,
-        // and the year's month count reads as max index 12 rather than 11).
-        String month = MONTHS[m];
-        if (m == 5 && c.getActualMaximum(HebrewCalendar.MONTH) == 12) month = "אדר א׳";
-        return res.getString(R.string.hebrew_date_format, numeral(d), month, numeral(y % 1000));
+        // ICU numbers the months Tishri-first and jumps from Shevat (4) straight to Adar (6) in a
+        // plain year. Adar I (5) exists only in a leap year, when 6 is Adar II.
+        return numeral(d) + " ב" + monthName(m, isLeapYear(y)) + " " + numeral(y % 1000);
+    }
+
+    /** ICU month index to its Hebrew name; see the comment at MONTHS. */
+    static String monthName(int m, boolean leap) {
+        return m == 5 ? "אדר א׳" : m == 6 && !leap ? MONTHS[5] : MONTHS[m];
+    }
+
+    /** Leap years in the 19-year Hebrew cycle (years 3, 6, 8, 11, 14, 17 and 19 of it). */
+    static boolean isLeapYear(int year) {
+        int rest = year % 19;
+        return rest == 0 || rest == 3 || rest == 6 || rest == 8 || rest == 11 || rest == 14 || rest == 17;
     }
 
     /**
@@ -58,14 +67,12 @@ final class Hebrew {
      * or without coordinates.
      */
     static String line(Resources res) {
-        String date = today(res);
+        String date = today();
         int sunset = sunsetToday(res);
         if (sunset < 0) return date;
         int day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
-        if (day == Calendar.FRIDAY)
-            return res.getString(R.string.hebrew_shabbat_in, date, minuteString(sunset - 18));
-        if (day == Calendar.SATURDAY)
-            return res.getString(R.string.hebrew_shabbat_out, date, minuteString(sunset + 42));
+        if (day == Calendar.FRIDAY) return date + " · כניסת שבת " + minuteString(sunset - 18);
+        if (day == Calendar.SATURDAY) return date + " · צאת שבת " + minuteString(sunset + 42);
         return date;
     }
 
@@ -96,9 +103,7 @@ final class Hebrew {
                 n -= VALUES[i];
             }
         }
-        String g = s.toString();
-        if ("יה".equals(g)) g = "טו";
-        if ("יו".equals(g)) g = "טז";
+        String g = s.toString().replace("יה", "טו").replace("יו", "טז");
         return g.length() > 1
                 ? g.substring(0, g.length() - 1) + "״" + g.substring(g.length() - 1)
                 : g + "׳";

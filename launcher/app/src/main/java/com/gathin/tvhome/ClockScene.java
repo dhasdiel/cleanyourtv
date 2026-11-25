@@ -57,6 +57,7 @@ final class ClockScene {
     private File wallpaperFile;
     private int wallpaperShade;
     private Resources wallpaperRes;
+    private int lunarUtcOffset;
     /** One number per decode request: a result whose number is no longer the current one is dropped. Main thread only. */
     private int wallpaperGeneration;
     /** clock_wallpaper with a collection: the pictures, how long each lasts, and how the next one is picked. */
@@ -70,6 +71,7 @@ final class ClockScene {
     private final Runnable tick = new Runnable() {
         @Override
         public void run() {
+            refreshLunarDate();
             moveClock();
             shiftGlow();
             advanceWallpaper();
@@ -82,7 +84,7 @@ final class ClockScene {
         content = root.findViewById(R.id.dreamContent);
         clockRefresh = new ClockRefresh(content);
         ambient = root.findViewById(R.id.dreamAmbient);
-        lunarDate = root.findViewById(R.id.dreamLunarDate);
+        lunarDate = root.findViewById(R.id.lunarDate);
         glow = new GradientDrawable();
         glow.setGradientType(GradientDrawable.RADIAL_GRADIENT);
         ambient.setBackground(glow);
@@ -128,10 +130,9 @@ final class ClockScene {
         // lunar_date's second date line, the same one Home shows under its date: the Hebrew
         // calendar on an iw/he locale, the lunisolar one otherwise.
         if (cfg.lunarDate) {
-            lunarDate.setText(Hebrew.isLocale() ? Hebrew.line(ctx.getResources())
-                    : Lunar.today(ctx.getResources(),
-                            Lunar.offsetFor(cfg.lunarUtcOffset, Locale.getDefault())));
+            lunarUtcOffset = cfg.lunarUtcOffset;
             lunarDate.setVisibility(View.VISIBLE);
+            refreshLunarDate();
         }
         if (!cfg.clockWallpaper) {
             // clock_glow false: plain black behind the clock (OLED); the clock itself still moves every minute.
@@ -163,6 +164,14 @@ final class ClockScene {
         }
         wallpaperShade = (cfg.clockWallpaperDim * 255 / 100) << 24;
         wallpaperRes = ctx.getResources();
+    }
+
+    /** Keeps the date line current when the clock stays up across midnight. */
+    private void refreshLunarDate() {
+        if (lunarDate.getVisibility() != View.VISIBLE) return;
+        Resources res = content.getResources();
+        lunarDate.setText(Hebrew.isLocale() ? Hebrew.line(res)
+                : Lunar.today(res, Lunar.offsetFor(lunarUtcOffset, Locale.getDefault())));
     }
 
     private void loadWallpaper() {
