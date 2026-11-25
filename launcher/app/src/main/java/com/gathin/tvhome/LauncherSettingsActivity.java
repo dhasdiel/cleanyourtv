@@ -192,7 +192,7 @@ public final class LauncherSettingsActivity extends Activity {
         List<File> themes = ThemeLibrary.installed(dir);
         String[] labels = new String[themes.size() + 1];
         for (int i = 0; i < themes.size(); i++) labels[i] = themes.get(i).getName();
-        labels[themes.size()] = getString(R.string.theme_default);
+        labels[themes.size()] = getString(R.string.wallpaper_theme_default);
         String current = ThemeLibrary.current(dir);
         int checked = ThemeLibrary.DEFAULT.equals(current) ? themes.size()
                 : current == null ? -1 : indexOf(themes, current);
@@ -204,7 +204,6 @@ public final class LauncherSettingsActivity extends Activity {
                             which == themes.size() ? null : themes.get(which));
                     if (!ok) return;
                     changed();
-                    Toast.makeText(this, R.string.theme_applied, Toast.LENGTH_SHORT).show();
                     refresh();
                 })
                 .setNegativeButton(android.R.string.cancel, null)
@@ -334,10 +333,9 @@ public final class LauncherSettingsActivity extends Activity {
             clockChoices[i].setSelected(CLOCK_FORMATS[i].equals(clockFormat));
         }
         String themeCurrent = ThemeLibrary.current(Config.dir(this));
-        themeChoice.setText(getString(R.string.theme_state,
-                themeCurrent == null ? getString(R.string.theme_custom)
-                        : ThemeLibrary.DEFAULT.equals(themeCurrent) ? getString(R.string.theme_default)
-                        : themeCurrent));
+        themeChoice.setText(themeCurrent == null ? getString(R.string.theme_label)
+                : ThemeLibrary.DEFAULT.equals(themeCurrent) ? getString(R.string.wallpaper_theme_default)
+                : getString(R.string.theme_state, themeCurrent));
         animationsChoice.setText(getString(R.string.animations_state,
                 getString(animations ? R.string.on : R.string.off)));
         advancedChoice.setText(getString(R.string.advanced_effects_state,

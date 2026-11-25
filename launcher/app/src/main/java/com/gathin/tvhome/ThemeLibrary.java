@@ -63,8 +63,11 @@ final class ThemeLibrary {
                 copy(new File(theme, Config.FILE_NAME), new File(dir, Config.FILE_NAME));
                 File wallpaper = new File(theme, Config.WALLPAPER_NAME);
                 if (wallpaper.isFile()) copy(wallpaper, new File(dir, Config.WALLPAPER_NAME));
-                File[] images = new File(theme, ThemeFiles.WALLPAPERS).listFiles(ThemeLibrary::themeFile);
-                if (images != null && images.length > 0) {
+                File collection = new File(theme, ThemeFiles.WALLPAPERS);
+                List<File> images = WallpaperRotation.images(collection);
+                File captions = new File(collection, WallpaperCaptions.FILE_NAME);
+                if (captions.isFile()) images.add(captions);
+                if (!images.isEmpty()) {
                     File target = new File(dir, ThemeFiles.WALLPAPERS);
                     if (!target.isDirectory() && !target.mkdirs()) return false;
                     for (File image : images) copy(image, new File(target, image.getName()));
@@ -77,16 +80,13 @@ final class ThemeLibrary {
         return true;
     }
 
-    private static boolean themeFile(File dir, String name) {
-        return ThemeFiles.collectionImage(name) || WallpaperCaptions.FILE_NAME.equals(name);
-    }
-
     /** The overlay's files gone: config.json, wallpaper.jpg, and the collection's own files. */
     private static void clear(File dir) {
         new File(dir, Config.FILE_NAME).delete();
         new File(dir, Config.WALLPAPER_NAME).delete();
-        File[] images = new File(dir, ThemeFiles.WALLPAPERS).listFiles(ThemeLibrary::themeFile);
-        if (images != null) for (File image : images) image.delete();
+        File collection = new File(dir, ThemeFiles.WALLPAPERS);
+        for (File image : WallpaperRotation.images(collection)) image.delete();
+        new File(collection, WallpaperCaptions.FILE_NAME).delete();
     }
 
     /** A new marker so Config's theme signature changes, exactly like a theme.sh push does. */
